@@ -15,6 +15,7 @@ class MenuAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "price", "category")
     search_fields = ("name",)
     list_filter = ("category", "price")
+    ordering = ('id',)
 
 admin.site.register(Menu, MenuAdmin)
 
@@ -23,6 +24,7 @@ admin.site.register(Menu, MenuAdmin)
 class TableAdmin(admin.ModelAdmin):
     list_display =('id',)
     search_fields = ('id',)
+    ordering = ('id',)
 admin.site.register(Table,TableAdmin)
 
 class OrderMenuInline(admin.TabularInline):
