@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category
+from .models import Category, Table, Menu, OrderMenu
 
 
 class CategorySerializer(serializers.Serializer):
@@ -18,6 +18,20 @@ class CategorySerializer(serializers.Serializer):
 class TableSerializer(serializers.Serializer):
     num = serializers.CharField()
     is_available = serializers.BooleanField()
+
+    def create(self, validated_data):
+        return Table.objects.create(
+            is_available=validated_data.get("is_available"),
+            num=validated_data.get("num"),
+        )
+
+    def update(self, instance, validated_data):
+        instance.is_available = validated_data.get(
+            "is_available", instance.is_available
+        )
+        instance.num = validated_data.get("num", instance.num)
+        instance.save()
+        return instance
 
 
 class MenuSerializer(serializers.Serializer):
