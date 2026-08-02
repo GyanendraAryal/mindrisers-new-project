@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Category, Table, Menu, OrderMenu, Order
 from rest_framework.generics import GenericAPIView
+from rest_framework import generics, mixins
 from .serializers import CategorySerializer, TableSerializer, MenuSerializer
 
 # Create your views here.
@@ -187,42 +188,81 @@ class TableDetail(APIView):
 
 
 # Genetic Class
-class CategoryView(GenericAPIView):
+# class CategoryView(GenericAPIView):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+
+#     def get(self, request):
+#         category = self.get_queryset()
+#         serializer = self.serializer_class(category, many=True)
+#         return Response(serializer.data)
+
+#     def post(self, request):
+#         seralizer = self.serializer_class(data=request.data)
+#         seralizer.is_valid(raise_exception=True)
+#         seralizer.save()
+#         return Response(
+#             {"message": "Category created successfully", "data": seralizer.data}
+#         )
+
+
+# class CategoryDetail(GenericAPIView):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+#     lookup_field = "id"
+
+#     def get(self, request, id):
+#         category = self.get_object()
+#         serializer = self.serializer_class(category)
+#         return Response(serializer.data)
+
+#     def delete(self, request, id):
+#         category = self.get_object()
+#         category.delete()
+#         return Response({"message": "Deleted ✅"})
+
+#     def put(self, request, id):
+#         category = self.get_object()
+#         serializer = self.serializer_class(category, data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response({"message": "Updated successfully ✅"})
+
+
+# Mixins
+class CategoryView(GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
     def get(self, request):
-        category = self.get_queryset()
-        serializer = self.serializer_class(category, many=True)
-        return Response(serializer.data)
+        return self.list(self, request)
 
     def post(self, request):
-        seralizer = self.serializer_class(data=request.data)
-        seralizer.is_valid(raise_exception=True)
-        seralizer.save()
-        return Response(
-            {"message": "Category created successfully", "data": seralizer.data}
-        )
+        return self.create(self, request)
 
 
-class CategoryDetail(GenericAPIView):
+class CategoryDetail(
+    GenericAPIView,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = "id"
 
     def get(self, request, id):
-        category = self.get_object()
-        serializer = self.serializer_class(category)
-        return Response(serializer.data)
+        return self.list(self, request, id)
+
+    def put(self, request, id):
+        return self.update(self, request, id)
 
     def delete(self, request, id):
         category = self.get_object()
-        category.delete()
-        return Response({"message": "Deleted ✅"})
-
-    def put(self, request, id):
-        category = self.get_object()
-        serializer = self.serializer_class(category, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"message": "Updated successfully ✅"})
+        item = OrderMenu.objects.filter(menu__category=category).count()
+        if item > 0:
+            return Response(
+                {"message": "Cannot be deleted"}, status=status.HTTP_404_BAD_REQUEST
+            )
+        return self.destroy(self, request, id,{"message":"Category deleted successfully"})

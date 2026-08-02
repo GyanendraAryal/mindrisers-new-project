@@ -30,7 +30,10 @@ DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = []
 
+# CORS_ALLOWED_ORIGINS =[
 
+# ]
+CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,9 +45,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rms",
     "rest_framework",
+    "corsheaders"
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
