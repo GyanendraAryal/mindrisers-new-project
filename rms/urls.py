@@ -2,9 +2,10 @@ from django.urls import path
 from .views import *
 from rest_framework import routers
 
-route = routers.SimpleRouter()
+route = routers.DefaultRouter()
 route.register("category", CategoryModelViewSet, basename="category")
 route.register("tables",TableListModelViewSet,basename="table")
+route.register("menu",MenuModelViewSet, basename="menu")
 
 
 urlpatterns = [

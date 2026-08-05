@@ -7,12 +7,17 @@ from rest_framework.generics import GenericAPIView
 from rest_framework import generics, mixins
 from .serializers import CategorySerializer, TableSerializer, MenuSerializer
 from rest_framework.viewsets import ViewSet, ModelViewSet
-
+from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from .pagination import CategoryPagination
+from .filter import MenuFilter
 
 # ModelViewset
 class CategoryModelViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    pagination_class = CategoryPagination
 
     def destroy(self, request, id):
         category = get_object_or_404(Category, id=id)
@@ -26,6 +31,16 @@ class CategoryModelViewSet(ModelViewSet):
 class TableListModelViewSet(ModelViewSet):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
+
+
+class MenuModelViewSet(ModelViewSet):
+    queryset = Menu.objects.all().prefetch_related("category")
+    serializer_class = MenuSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = MenuFilter
+    # filterset_fields = ["category"]
+    search_fields = ["name", "category__name"]
 
 
 # class CategoryDetailModelViewSet(ModelViewSet):
